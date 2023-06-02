@@ -1,0 +1,2 @@
+export const INITIAL_PROPOSAL_COUNT = 10;
+export const AVERAGE_BLOCK_TIME_MS = 13.32 * 1000;

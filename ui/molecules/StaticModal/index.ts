@@ -1,0 +1,1 @@
+export { StaticModal } from "./StaticModal";

@@ -1,0 +1,31 @@
+export enum PlatformTypeEnum {
+  "YouTube" = "YouTube",
+  "Instagram" = "Instagram",
+  "IPFS" = "IPFS",
+  "MegaUpload" = "MegaUpload",
+  "Twitter" = "Twitter",
+  "GitHub" = "GitHub",
+  "Discord" = "Discord",
+  "Discourse" = "Discourse",
+  "Vimeo" = "Vimeo",
+  "PodBean" = "PodBean",
+  "ZoraIPFS" = "ZoraIPFS",
+  "Pinata" = "PinataCloud",
+  "NftStorage" = "NftStorage",
+}
+
+export const platformDomainMap: Readonly<Record<string, PlatformTypeEnum>> = {
+  "twitter.com": PlatformTypeEnum.Twitter,
+  "github.com": PlatformTypeEnum.GitHub,
+  "discord.com": PlatformTypeEnum.Discord,
+  "discourse.org": PlatformTypeEnum.Discourse,
+  "vimeo.com": PlatformTypeEnum.Vimeo,
+  "youtube.com": PlatformTypeEnum.YouTube,
+  "youtu.be": PlatformTypeEnum.YouTube,
+  "instagram.com": PlatformTypeEnum.Instagram,
+  "podbean.com": PlatformTypeEnum.PodBean,
+  "cloudflare-ipfs.com": PlatformTypeEnum.IPFS,
+  "mega.nz": PlatformTypeEnum.MegaUpload,
+  "zora-prod.mypinata.cloud": PlatformTypeEnum.ZoraIPFS,
+  "mypinata.cloud": PlatformTypeEnum.Pinata,
+};

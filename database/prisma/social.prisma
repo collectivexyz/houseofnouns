@@ -1,0 +1,433 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../node_modules/prisma-social"
+  previewFeatures = ["fieldReference"]
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../erd/social.pdf"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_SOCIAL")
+}
+
+model Notification {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  address        String
+  type           NotificationType
+  title          String
+  subtitle       String?
+  imageUrl       String?
+  url            String
+  isAcknowledged Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  scope          Scope
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  PostReply
+  PostLike
+  SubmissionReply
+  SubmissionUpvote
+}
+
+model Profile {
+  id                String             @id @default(auto()) @map("_id") @db.ObjectId
+  address           String             @unique
+  openseaAccount    OpenseaAccount?
+  profilePicture    String?
+  updatedAt         DateTime?
+  pfpUpdatedAt      DateTime?
+  usernameUpdatedAt DateTime?
+  username          String
+  Post              Post[]
+  CommunityProfile  CommunityProfile[]
+  Draft             Draft[]
+
+  @@map("profiles")
+}
+
+model CommunityProfile {
+  id                       String                    @id @default(auto()) @map("_id") @db.ObjectId
+  address                  String
+  communitySlug            String
+  updatedAt                DateTime?
+  createdAt                DateTime?                 @default(now())
+  username                 String? //deprecating this soon in favor of profiles
+  profile                  Profile?                  @relation(fields: [address], references: [address])
+  profilePicture           String?
+  builderStats             BuilderStats?
+  firstTransfer            FirstTransfer?
+  governanceStats          GovernanceStats?
+  ownershipStats           OwnershipStats?
+  rankings                 Rankings?
+  usernameUpdatedAt        DateTime?
+  userId                   String?
+  communityId              String? //deprecated
+  revolutionOwnershipStats RevolutionOwnershipStats?
+  revolutionEarnedStats    RevolutionEarnedStats?
+  creatorStats             CreatorStats?
+  onboarderStats           OnboarderStats?
+  referredBy               String? //was referred by userId
+  category                 String?
+  bio                      String?
+  displayName              String?
+  social                   Social?
+  links                    ProfileLink[]
+  coverImage               String?
+  noLinkTree               Boolean?
+
+  @@map("communityProfiles")
+}
+
+model Community {
+  id                 String                        @id @default(auto()) @map("_id") @db.ObjectId
+  v                  Int?                          @map("__v")
+  access             String
+  accessControl      Json?
+  aesthetics         CommunitiesAesthetics
+  announcementFeedId String
+  claimed            Boolean?
+  communityId        String                        @unique(map: "communityId_1")
+  createdAt          DateTime?                     @db.Date
+  creator            String
+  description        String?
+  discordChannelId   String
+  feedsOrder         String[]
+  imageUrl           String?
+  name               String
+  projectId          String
+  slug               String                        @unique(map: "slug_1")
+  twitterUsername    String
+  type               String
+  updatedAt          DateTime                      @db.Date
+  visibility         String
+  governanceSettings CommunitiesGovernanceSettings
+
+  @@index([projectId], map: "projectId_1")
+  @@map("communities")
+}
+
+model Post {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  address       String?
+  author        String
+  content       String?
+  markdown      String?
+  title         String?
+  upvotes       String[]
+  upvoteCount   Int         @default(0)
+  downvotes     String[]
+  parentPostId  String?
+  parentPost    Post?       @relation("Comment", fields: [parentPostId], references: [postId], onDelete: NoAction, onUpdate: NoAction)
+  children      Post[]      @relation("Comment")
+  childrenCount Int         @default(0)
+  rootPostId    String?
+  postId        String      @unique @default(uuid())
+  scope         Scope
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime?   @default(now())
+  deleted       Boolean     @default(false)
+  signatures    Signature[]
+  communitySlug String?
+  profile       Profile?    @relation(fields: [address], references: [address])
+
+  @@map("posts")
+}
+
+model Draft {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  address        String?
+  slug           String
+  title          String?
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @default(now())
+  versions       Json
+  currentVersion String
+  profile        Profile?  @relation(fields: [address], references: [address])
+
+  @@map("drafts")
+}
+
+model Link {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  url         String    @unique
+  title       String?
+  description String?
+  imageUrl    String?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @default(now())
+
+  @@map("links")
+}
+
+type CommunitiesAesthetics {
+  categories    String[]
+  coverImageUrl String?
+  description   String?
+  logoImageUrl  String?
+  palette       CommunitiesAestheticsPalette?
+}
+
+type CommunitiesGovernanceSettings {
+  entities   CommunitiesGovernanceSettingsEntity[]
+  treasuries CommunitiesGovernanceSettingsTreasury[]
+}
+
+type CommunitiesGovernanceSettingsEntity {
+  entityId String
+  stage    String
+}
+
+type CommunitiesGovernanceSettingsTreasury {
+  address String
+}
+
+type CommunitiesAestheticsPalette {
+  darkContrast   String?
+  darkPrimary    String?
+  darkSecondary  String?
+  darkSelection  String?
+  lightContrast  String?
+  lightPrimary   String?
+  lightSecondary String?
+  lightSelection String?
+}
+
+type BuilderStats {
+  funding   BuilderStatsFunding?
+  projects  BuilderStatsProjects?
+  proposals BuilderStatsProposals?
+}
+
+type CreatorStats {
+  numCreated       Int?
+  totalVotesWeight Int?
+}
+
+type OnboarderStats {
+  totalOnboarded Int?
+}
+
+type BuilderStatsFunding {
+  onChain   Int
+  prophouse Int
+  total     Int
+}
+
+type Supporter {
+  address     String?
+  quantity    Int
+  totalSpent  Float?
+  firstMintAt DateTime?
+  rank        Int?
+}
+
+type Social {
+  twitter    String?
+  instagram  String?
+  youtube    String?
+  twitch     String?
+  discord    String?
+  flicker    String?
+  tiktok     String?
+  github     String?
+  reddit     String?
+  medium     String?
+  soundcloud String?
+  snapchat   String?
+  spotify    String?
+  linkedin   String?
+  facebook   String?
+}
+
+type ProfileLink {
+  url   String
+  title String?
+}
+
+type RevolutionOwnershipStats {
+  numOwned          Int?
+  uniqueContracts   Int?
+  creatorsSupported Int?
+  supported         Supporter[]
+}
+
+type RevolutionEarnedStats {
+  numDropped  Int
+  totalEarned Float
+  totalMinted Int
+  numAuctions Int
+  numEditions Int
+  supporters  Supporter[]
+}
+
+type BuilderStatsProjects {
+  contributed Int
+  created     Int
+  shipped     Int
+}
+
+type BuilderStatsProposals {
+  created      Int
+  executed     Int
+  executedRate Int?
+  finalized    Int
+}
+
+type FirstTransfer {
+  blockNumber Int?
+  timestamp   Json?
+  tokenId     String?
+}
+
+type Scope {
+  type ScopeType
+  id   String
+}
+
+enum ScopeType {
+  community
+  subproject
+  project
+  submission
+  proposal
+  vote
+  revolution
+  edition
+}
+
+type Signature {
+  address   String
+  signature String
+}
+
+type OpenseaAccount {
+  address         String?
+  currencies      Json?
+  profile_img_url String?
+  lastUpdatedAt   DateTime?
+}
+
+type GovernanceStats {
+  delegateStatus      GovernanceStatsDelegateStatus?
+  totalProposalsVoted Int
+  voting              GovernanceStatsVoting?
+}
+
+type GovernanceStatsDelegateStatus {
+  totalDelegatedVotes      Int
+  totalVotes               Int
+  uniqueHoldersRepresented Int
+}
+
+type GovernanceStatsVoting {
+  participatedInCount GovernanceStatsVotingParticipatedInCount?
+  participationRate   GovernanceStatsVotingParticipationRate?
+  votingOpportunities GovernanceStatsVotingVotingOpportunities?
+  votingPower         GovernanceStatsVotingVotingPower?
+}
+
+type GovernanceStatsVotingParticipatedInCount {
+  onChain   Int
+  prophouse Int
+  total     Int
+}
+
+type GovernanceStatsVotingParticipationRate {
+  onChain   Int
+  prophouse Int
+  total     Int
+}
+
+type GovernanceStatsVotingVotingOpportunities {
+  onChain   Int
+  prophouse Int
+  total     Int
+}
+
+type GovernanceStatsVotingVotingPower {
+  percentQuorum Float
+  percentTotal  Float
+  tokens        Int
+}
+
+type OwnershipStats {
+  firstPurchase OwnershipStatsFirstPurchase?
+  numOwned      Int?
+  firstTransfer OwnershipStatsFirstTransfer?
+}
+
+type OwnershipStatsFirstPurchase {
+  stillOwns Boolean?
+  updatedAt DateTime @db.Date
+}
+
+type OwnershipStatsFirstTransfer {
+  blockNumber Json?
+}
+
+type Rankings {
+  builder             RankingsBuilder?
+  delegate            RankingsDelegate?
+  funding             RankingsFunding?
+  votingParticipation RankingsVotingParticipation?
+}
+
+type RankingsBuilder {
+  executedProposals RankingsBuilderExecutedProposals?
+}
+
+type RankingsBuilderExecutedProposals {
+  percentile Float?
+  rank       Int?
+  total      Int
+}
+
+type RankingsDelegate {
+  onChain RankingsDelegateOnChain?
+}
+
+type RankingsDelegateOnChain {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  percentile Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  rank       Json?
+  total      Int
+}
+
+type RankingsFunding {
+  onChainFunding   RankingsFundingOnChainFunding?
+  prophouseFunding RankingsFundingProphouseFunding?
+  totalFunding     RankingsFundingTotalFunding?
+}
+
+type RankingsFundingOnChainFunding {
+  percentile Float?
+  rank       Int?
+  total      Int
+}
+
+type RankingsFundingProphouseFunding {
+  percentile Float?
+  rank       Int?
+  total      Int
+}
+
+type RankingsFundingTotalFunding {
+  percentile Float?
+  rank       Int?
+  total      Int
+}
+
+type RankingsVotingParticipation {
+  percentile Float?
+  rank       Int?
+  total      Int
+}

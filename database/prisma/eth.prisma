@@ -1,0 +1,58 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../node_modules/prisma-eth"
+  previewFeatures = ["fieldReference"]
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../erd/eth.pdf"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_ETH")
+}
+
+model Nft {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  chainId           Int
+  imageUrl          String?
+  imageUrlUpdatedAt DateTime?
+  description       String?
+  name              String?
+  network           String
+  networkAddress    String
+  owner             String
+  tags              String[]
+  schema            String
+  tokenId           String
+  numOwned          Int?
+  createdAt         DateTime? @db.Date
+  updatedAt         DateTime? @db.Date
+
+  @@map("nfts")
+}
+
+model Event {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  address         String
+  transactionHash String
+  blockTimestamp  DateTime?
+  topics          String[]
+  data            String?
+  blockNumber     Int
+  createdAt       DateTime? @db.Date
+  updatedAt       DateTime? @db.Date
+  chainId         Int
+
+  @@map("events")
+}
+
+model Block {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  blockNumber Int
+  chainId     Int
+
+  @@map("blocks")
+}

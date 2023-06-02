@@ -1,0 +1,69 @@
+.container {
+  @apply flex items-center rounded-xl border px-2 transition-all duration-150 lg:px-4;
+}
+
+.input {
+  transition-property: width;
+  @apply w-full flex-grow appearance-none bg-transparent duration-150;
+  @apply focus:outline-none;
+  @apply disabled:opacity-25;
+}
+
+.lg {
+  @apply py-2 text-sm font-medium lg:py-3.5 lg:text-base;
+}
+
+.xl {
+  @apply py-4 text-lg font-medium lg:py-6 lg:text-xl;
+}
+
+.base {
+  @apply py-2.5 text-sm leading-[18px];
+}
+
+.sm {
+  @apply py-1.5 text-sm;
+}
+
+.input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.input[type="search"] {
+  @apply appearance-none;
+}
+
+.icon {
+  @apply pointer-events-none flex items-center text-current;
+}
+
+/* Color Variants */
+.default,
+.gray {
+  @apply text-neutral-900;
+}
+
+:global(.dark) .default,
+:global(.dark) .gray {
+  @apply border-d-neutral-400 bg-d-neutral-600 text-white;
+  @apply hover:border-d-neutral-200 hover:bg-d-neutral-600;
+  @apply focus-within:bg-d-neutral-600 focus-within:border-white focus-within:text-white;
+}
+
+.gray {
+  @apply border-transparent bg-neutral-50;
+  @apply hover:border-neutral-100 hover:bg-white;
+  @apply focus-within:border-neutral-100 focus-within:bg-white;
+}
+
+.default {
+  @apply border-neutral-100 bg-white focus-within:border-neutral-700 hover:border-neutral-400 hover:focus-within:border-neutral-700;
+}
+
+.transparent {
+  @apply border-transparent bg-neutral-50 bg-opacity-20 text-white;
+}
+
+:global(.dark) .transparent {
+  @apply bg-d-neutral-900 bg-opacity-20;
+}

@@ -1,0 +1,62 @@
+.content {
+  @apply leading-6;
+
+  pre {
+    background: none;
+
+    code {
+      @apply bg-none p-0;
+
+      &::before,
+      &::after {
+        content: "";
+        display: none;
+      }
+    }
+  }
+
+  code {
+    background-color: rgb(240, 242, 245);
+    padding: 1px 0.25rem;
+    font-family: Menlo, Consolas, Monaco, monospace;
+    font-size: 94%;
+  }
+
+  * {
+    @apply whitespace-normal;
+  }
+
+  * + h1 {
+    @apply mt-5 mb-2.5;
+  }
+
+  h2 {
+    @apply mt-4 mb-2;
+  }
+
+  h3 {
+    @apply mt-3 mb-1.5;
+  }
+
+  ul,
+  li {
+    @apply my-0.5;
+    @apply whitespace-normal;
+  }
+
+  img {
+    @apply my-2;
+  }
+
+  p {
+    @apply whitespace-normal;
+
+    & > img {
+      @apply my-0;
+    }
+  }
+
+  hr {
+    @apply my-4;
+  }
+}

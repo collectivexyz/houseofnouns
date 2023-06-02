@@ -1,0 +1,281 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/prisma-governance"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../erd/governance.pdf"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_GOVERNANCE")
+}
+
+type AccountsLastUpdated {
+  blockNumber      Int
+  logIndex         Int
+  transactionIndex Int
+}
+
+type DelegatesCreation {
+  id    String   @map("_id") @db.ObjectId
+  block Int
+  date  DateTime @db.Date
+}
+
+type DelegatesLastUpdated {
+  blockNumber      Int
+  logIndex         Int
+  transactionIndex Int
+}
+
+type DelegatesStats {
+  totalProposalsVoted Int
+}
+
+type EntitiesAesthetics {
+  categories    String[]
+  coverImageUrl String?
+  description   String?
+  logoImageUrl  String
+}
+
+type EntitiesDetails {
+  governanceContract   String
+  lastScannedBlock     Int
+  logicContractVersion String?
+  tokenContract        String
+}
+
+type EntitiesMetadata {
+  currentDelegate     String
+  currentNounDelegate String
+}
+
+type ProposalsCreation {
+  id              String?  @map("_id") @db.ObjectId
+  block           Int?
+  date            DateTime @db.Date
+  transactionHash String?
+}
+
+type ProposalsCustomFields {
+  links ProposalsCustomFieldsLinks[]
+}
+
+type ProposalsCustomFieldsLinks {
+  name String
+  url  String
+}
+
+type ProposalsLastUpdated {
+  blockNumber      Int
+  logIndex         Int
+  transactionIndex Int
+}
+
+type ProposalsMetadata {
+  endBlock   Int?
+  endDate    DateTime? @db.Date
+  startBlock Int?
+  startDate  DateTime? @db.Date
+}
+
+type ProposalsNounsDynamicQuorum {
+  maxQuorumVotesBPS String
+  minQuorumVotesBPS String
+  quorumCoefficient String
+  totalSupply       String
+}
+
+type ProposalsPayoutAmount {
+  /// Multiple data types found: Float: 13.4%, Int: 86.6% out of 947 sampled entries
+  eth      Json
+  quantity String
+}
+
+type ProposalsStrategy {
+  proposalThreshold Int?
+  quorumVotes       Int
+  snapshotBlock     Int
+}
+
+type VotesLastUpdated {
+  blockNumber      Int
+  logIndex         Int
+  transactionIndex Int
+}
+
+type VotesOptionId {
+  block Int?
+  id    Int
+}
+
+type VotesVotedAt {
+  block Int?
+  time  DateTime @db.Date
+}
+
+model Account {
+  id                 String              @id @default(auto()) @map("_id") @db.ObjectId
+  v                  Int                 @map("__v")
+  address            String
+  blockchain         String
+  delegate           String
+  entityId           String
+  governanceContract String
+  lastUpdated        AccountsLastUpdated
+  network            String
+  tokenContract      String
+  totalTokens        Int
+  type               String
+
+  @@unique([entityId, address], map: "entityId_1_address_1")
+  @@index([entityId, delegate], map: "entityId_1_delegate_1")
+  @@index([entityId], map: "entityId_1")
+  @@map("accounts")
+}
+
+model Delegate {
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  v                  Int                  @map("__v")
+  address            String
+  blockchain         String
+  creation           DelegatesCreation
+  entityId           String
+  governanceContract String
+  lastUpdated        DelegatesLastUpdated
+  network            String
+  stats              DelegatesStats
+  tokenContract      String
+  totalVotes         Int
+  type               String
+  profile            Profile?             @relation(fields: [address], references: [address])
+
+  @@unique([entityId, address], map: "entityId_1_address_1")
+  @@index([entityId], map: "entityId_1")
+  @@index([type], map: "type_1")
+  @@index([entityId, totalVotes], map: "entityId_1_totalVotes_1")
+  @@map("delegates")
+}
+
+model Entity {
+  id                   String              @id @default(auto()) @map("_id") @db.ObjectId
+  v                    Int?                @map("__v")
+  aesthetics           EntitiesAesthetics?
+  blockchain           String
+  communityId          String?
+  details              EntitiesDetails?
+  entityId             String
+  ingestionDisabled    Boolean?
+  latestVoteRecordedAt DateTime?           @db.Date
+  metadata             EntitiesMetadata?
+  name                 String?
+  network              String
+  type                 String
+  updatedAt            DateTime?           @db.Date
+  proposals            Proposal[]
+
+  @@unique([entityId], map: "entityId_1")
+  @@map("entities")
+}
+
+model Proposal {
+  id                   String                       @id @default(auto()) @map("_id") @db.ObjectId
+  v                    Int?                         @map("__v")
+  auctionId            String?
+  blockchain           String
+  calldatas            String[]
+  creation             ProposalsCreation
+  customFields         ProposalsCustomFields?
+  description          String
+  entityId             String
+  lastUpdated          ProposalsLastUpdated?
+  linkedPostId         String?
+  linkedSubprojectSlug String?
+  metadata             ProposalsMetadata
+  network              String
+  nounsDynamicQuorum   ProposalsNounsDynamicQuorum?
+  options              Json
+  payoutAmount         ProposalsPayoutAmount?
+  proposalId           String
+  proposer             String
+  signatures           String[]
+  status               String
+  strategy             ProposalsStrategy?
+  targets              String[]
+  title                String?
+  tldr                 String?
+  tokenContract        String?
+  totalUniqueVotes     Int
+  totalVotes           Int
+  type                 String
+  uniqueId             String                       @unique(map: "uniqueId_1")
+  updatedAt            DateTime?                    @db.Date
+  values               String[]
+  profile              Profile?                     @relation(fields: [proposer], references: [address])
+  votes                Vote[]
+  dao                  Entity                       @relation(fields: [entityId], references: [entityId])
+
+  @@unique([proposalId, entityId])
+  @@index([entityId, proposalId], map: "entityId_1_proposalId_1")
+  @@index([entityId], map: "entityId_1")
+  @@index([payoutAmount.eth(sort: Desc)], map: "payoutAmount.eth_-1")
+  @@map("proposals")
+}
+
+model Vote {
+  id                String            @id @default(auto()) @map("_id") @db.ObjectId
+  v                 Int?              @map("__v")
+  blockchain        String
+  countedInProposal Boolean?
+  entityId          String
+  lastUpdated       VotesLastUpdated?
+  linkedPostId      String?
+  network           String
+  optionId          String
+  presetVoteType    String?
+  proposalId        String
+  reason            String
+  tokenContract     String?
+  type              String
+  uniqueId          String            @unique(map: "uniqueId_1")
+  updatedAt         DateTime?         @db.Date
+  votedAt           VotesVotedAt
+  voter             String
+  weight            Int
+  profile           Profile?          @relation(fields: [voter], references: [address])
+  proposal          Proposal?         @relation(fields: [proposalId, entityId], references: [proposalId, entityId])
+
+  @@index([voter], map: "voter_1")
+  @@index([voter, entityId], map: "voter_1_entityId_1")
+  @@index([entityId], map: "entityId_1")
+  @@index([weight, proposalId], map: "weight_1_proposalId_1")
+  @@index([entityId, proposalId, weight], map: "entityId_1_proposalId_1_weight_1")
+  @@index([votedAt.time(sort: Desc)], map: "votedAt.time_-1")
+  @@map("votes")
+}
+
+model Profile {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  address           String          @unique
+  openseaAccount    OpenseaAccount?
+  profilePicture    String?
+  updatedAt         DateTime?       @db.Date
+  username          String?
+  votes             Vote[]
+  proposals         Proposal[]
+  Delegate          Delegate[]
+  pfpUpdatedAt      DateTime?
+  usernameUpdatedAt DateTime?
+
+  @@map("profiles")
+}
+
+type OpenseaAccount {
+  address         String?
+  currencies      Json?
+  profile_img_url String?
+}

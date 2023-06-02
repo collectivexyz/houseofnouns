@@ -1,0 +1,12 @@
+.tableOfContent {
+  ul {
+    li {
+      @apply list-none;
+
+      &::marker {
+        content: "· ";
+        @apply text-light-gray;
+      }
+    }
+  }
+}
