@@ -1,7 +1,10 @@
 import { DynamicJwt, DynamicJwtFromJSON } from "@dynamic-labs/sdk-api";
-import { nonNullable } from "../utils";
 import { normalizeEthAddress } from "../utils/account/account";
 import { decodeToken } from "./access-token";
+
+function nonNullable<T>(value: T): value is NonNullable<T> {
+  return value !== null && value !== undefined;
+}
 
 export interface IUser extends DynamicJwt {
   address: string | null;

@@ -1,8 +1,9 @@
 import "server-only";
 
-import { TOKEN_KEY } from "./access-token";
 import { getUserFromToken } from "./dynamic-payload";
 import { type NextRequest } from "next/server";
+
+const TOKEN_KEY = `${process.env.NEXT_PUBLIC_TOKEN_KEY}`;
 
 const getTokenFromRouteRequest = (request: NextRequest) => {
   const headers = new Headers(request.headers);

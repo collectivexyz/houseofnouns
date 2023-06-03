@@ -1,10 +1,15 @@
 "use client";
 
 import { useDynamicContext, UserProfile } from "@dynamic-labs/sdk-react-core";
-import { createContext, PropsWithChildren, useEffect } from "react";
+import {
+  createContext,
+  PropsWithChildren,
+  useEffect,
+  useTransition,
+} from "react";
 import { useRoutesApi } from "../api/useRoutesApi";
 import { getShortEthAddress } from "../utils/account";
-import { removeAccessToken, setAccessToken } from "./access-token";
+import { removeAccessToken, setAccessToken } from "./set-access-token";
 import { getEthAddressesFromVerifiedCredentials } from "./dynamic-payload";
 import { getDynamicEnvironmentId } from "./dynamic-config";
 
@@ -26,10 +31,10 @@ export interface IUserContext {
 export const UserContext = createContext<IUserContext | undefined>(undefined);
 UserContext.displayName = "UserContext";
 
-export const UserProvider = (
-  props: PropsWithChildren<{ revolutionId?: string }>
-) => {
-  const { revolutionId } = props;
+export const UserProvider = (props: PropsWithChildren) => {
+  // transition
+  const [_, startTransition] = useTransition();
+
   const {
     handleLogOut,
     setShowAuthFlow,
@@ -46,29 +51,27 @@ export const UserProvider = (
   );
 
   useEffect(() => {
-    if (!isAuthenticated) removeAccessToken();
+    if (!isAuthenticated) {
+      startTransition(() => {
+        removeAccessToken();
+      });
+    }
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (authToken) setAccessToken(authToken);
+    if (authToken) {
+      startTransition(() => {
+        setAccessToken(authToken);
+      });
+    }
   }, [authToken]);
 
   const logout = async () => {
-    removeAccessToken();
+    startTransition(() => {
+      removeAccessToken();
+    });
     await handleLogOut();
   };
-
-  useEffect(() => {
-    if (user?.environmentId) {
-      const envId = user.environmentId;
-      const revolutionEnvId = getDynamicEnvironmentId(props.revolutionId);
-
-      if (envId !== revolutionEnvId) {
-        console.log("envId mismatch, logging out user");
-        logout();
-      }
-    }
-  }, [user]);
 
   return (
     <UserContext.Provider

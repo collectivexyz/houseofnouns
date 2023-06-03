@@ -1,9 +1,15 @@
-import { social, revolution, governance } from "../../..";
+import { social, governance } from "../../..";
 
 //update all profile pictures
-export const updateProfilePicture = async (addresses: string[], profilePicture: string) => {
+export const updateProfilePicture = async (
+  addresses: string[],
+  profilePicture: string
+) => {
   //if profile picture isnt a url, throw error
-  if (!profilePicture?.startsWith("https://") && !profilePicture?.startsWith("http://"))
+  if (
+    !profilePicture?.startsWith("https://") &&
+    !profilePicture?.startsWith("http://")
+  )
     throw new Error("Profile picture must be a url");
 
   // new date 4 years from now to prevent workers from overwriting
@@ -15,10 +21,9 @@ export const updateProfilePicture = async (addresses: string[], profilePicture: 
   const where = { address: { in: addresses } };
 
   try {
-    //update social, revolution, and governance dbs
+    //update social and governance dbs
     await Promise.all([
       social.profile.updateMany({ where, data }),
-      revolution.profile.updateMany({ where, data }),
       governance.profile.updateMany({ where, data }),
     ]);
   } catch (e) {
@@ -27,7 +32,10 @@ export const updateProfilePicture = async (addresses: string[], profilePicture: 
 };
 
 //update all usernames
-export const updateUsername = async (addresses: string[], usernameRaw: string) => {
+export const updateUsername = async (
+  addresses: string[],
+  usernameRaw: string
+) => {
   const username = usernameRaw.toLowerCase();
 
   const usernameExists = await checkUsername(username);
@@ -40,11 +48,10 @@ export const updateUsername = async (addresses: string[], usernameRaw: string) =
 
   const where = { address: { in: addresses } };
   try {
-    //update social, revolution, and governance dbs
+    //update social, and governance dbs
     await Promise.all([
       social.profile.updateMany({ where, data }),
       social.communityProfile.updateMany({ where, data }),
-      revolution.profile.updateMany({ where, data }),
       governance.profile.updateMany({ where, data }),
     ]);
   } catch (e) {
@@ -59,7 +66,9 @@ const checkUsername = async (username: string) => {
 
   //if username has something other than letters, numbers, or underscores, throw error
   if (!/^[a-zA-Z0-9_]*$/.test(username))
-    throw new Error("Username is invalid. Only letters, numbers, and underscores are allowed.");
+    throw new Error(
+      "Username is invalid. Only letters, numbers, and underscores are allowed."
+    );
 
   const profile = await social.profile.findFirst({ where: { username } });
   return !!profile;

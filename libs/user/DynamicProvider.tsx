@@ -8,7 +8,7 @@ import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { useRouter } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { mutate } from "swr";
-import { setAccessToken } from "./access-token";
+import { setAccessToken } from "./set-access-token";
 import { DYNAMIC_AUTH_CONFIG } from "./dynamic-config";
 
 export const DynamicProvider = ({ children }: PropsWithChildren) => {

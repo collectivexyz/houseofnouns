@@ -21,6 +21,7 @@ const nextConfig = {
   transpilePackages: ["ui"],
   experimental: {
     appDir: true,
+    serverActions: true,
     serverComponentsExternalPackages: [
       "prisma-social",
       "prisma-governance",

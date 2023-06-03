@@ -9,31 +9,42 @@ const getProvider = (chainId: number) =>
 
 function getContracts(addresses: string[], chainId: number): Contract[] {
   const provider = getProvider(chainId);
-  return addresses.map(address => new Contract(address, erc20Interface, provider));
+  return addresses.map(
+    (address) => new Contract(address, erc20Interface, provider)
+  );
 }
 
-async function getAddressBalance(address: string, chainId: number): Promise<number> {
+async function getAddressBalance(
+  address: string,
+  chainId: number
+): Promise<number> {
   const provider = getProvider(chainId);
   const balance = await provider.getBalance(address);
   return parseFloat(ethers.utils.formatEther(balance));
 }
 
-async function getContractsBalance(contracts: Contract[], address: string): Promise<number> {
+async function getContractsBalance(
+  contracts: Contract[],
+  address: string
+): Promise<number> {
   if (contracts.length === 0) return 0;
   const promises: Array<Promise<any>> = [];
-  contracts.forEach(contract => promises.push(contract.balanceOf(address)));
+  contracts.forEach((contract) => promises.push(contract.balanceOf(address)));
   const balances = await Promise.all(promises);
   return balances.reduce((a, b) => a + b, 0) / 1e18;
 }
 
 export async function getTotalBalance(
   address: string,
-  chainId = 1,
-  tokens: string[] = []
+  tokens: string[] = [],
+  chainId = 1
 ): Promise<number> {
   try {
     const addressBalance = await getAddressBalance(address, chainId);
-    const contractsBalance = await getContractsBalance(getContracts(tokens, chainId), address);
+    const contractsBalance = await getContractsBalance(
+      getContracts(tokens, chainId),
+      address
+    );
     return addressBalance + contractsBalance;
   } catch (e) {
     console.error("Error loading treasury", e);
