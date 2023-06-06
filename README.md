@@ -1,16 +1,20 @@
-## Contributions
-
-We accept contributions via pull requests. We'll soon be maintaining a list of bounties and contribution requests.
-
 ## Getting Started
 
-First, run the development server:
+For now, this repository uses hosted APIs from House of Nouns (https://api.houseofnouns.wtf). We'll be progressively open-sourcing more of this after the frontend release is stable.
+
+To get started, clone this repository and create a file called .env containing the defaults in .env.example. These point to our public Mongo cluster that contain read-only data around proposals, comments, and other metadata.
+
+Then, run the development server:
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Contributions
+
+We accept contributions via pull requests. We'll soon be maintaining a list of bounties and contribution requests.
 
 ## Learn More
 
