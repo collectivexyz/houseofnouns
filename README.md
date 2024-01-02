@@ -1,3 +1,5 @@
+Entire REPO licensed under the MIT license
+
 ## Getting Started
 
 For now, this repository uses hosted APIs from House of Nouns (https://api.houseofnouns.wtf). We'll be progressively open-sourcing more of this after the frontend release is stable.
